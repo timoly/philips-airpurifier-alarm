@@ -60,7 +60,8 @@ exec(`airctrl ${PURIFIER_IP}`, async (error, stdout, stderr) => {
     .filter(r => r.includes(wlRow))
     .some(r => {
       const percentage = parseInt(r.replace(wlRow, ''), 10)
-      return percentage < 101
+      // this seems to be either 0 or 100, at least with philips ac3829/10
+      return percentage < 5
   })
 
 
