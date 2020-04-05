@@ -1,0 +1,23 @@
+airctrl 192.168.1.142  --filters
+Pre-filter and Wick: clean in 0 hours
+Wick filter: replace in 880 hours
+Active carbon filter: replace in 880 hours
+HEPA filter: replace in 880 hours
+
+airctrl 192.168.1.142
+[pwr]   Power: ON
+[pm25]  PM25: 3
+[rh]    Humidity: 44
+[rhset] Target humidity: 60
+[iaql]  Allergen index: 1
+[temp]  Temperature: 26
+[func]  Function: Purification & Humidification
+[mode]  Mode: allergen
+[om]    Fan speed: 1
+[aqil]  Light brightness: 100
+[uil]   Buttons light: ON
+[ddp]   Used index: 3
+[wl]    Water level: 100
+[cl]    Child lock: False
+--------------------
+Error: pre-filter must be cleaned

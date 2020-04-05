@@ -1,0 +1,17 @@
+{
+  "name": "philips_airpurifier_alarm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "docker build . -t philips-airpurifier-alarm",
+    "start": "./start.sh"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "8.2.0",
+    "gmail-send": "1.8.10",
+    "node-json-db": "1.0.3"
+  }
+}

@@ -1,0 +1,3 @@
+.env
+db/index.json
+node_modules
