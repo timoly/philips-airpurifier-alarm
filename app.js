@@ -1,9 +1,4 @@
 require('dotenv').config()
-const { Config } = require('node-json-db/dist/lib/JsonDBConfig')
-const { JsonDB } = require('node-json-db') 
-
-var db = new JsonDB(new Config("./db/index", true, false, '/'))
-
 const {GMAIL_USER, GMAIL_APP_PASS, TO_EMAIL, PURIFIER_IP} = process.env
 
 const send = require('gmail-send')({
@@ -12,7 +7,17 @@ const send = require('gmail-send')({
   to: TO_EMAIL
 })
 
-const log = (message) => console.log(new Date(), message)
+const util = require('util')
+const childProcess = require("child_process")
+const exec = util.promisify(childProcess.exec)
+
+const { Config } = require('node-json-db/dist/lib/JsonDBConfig')
+const { JsonDB } = require('node-json-db') 
+var db = new JsonDB(new Config("./db/index", true, false, '/'))
+
+const WATER_LEVEL_ROW = '[wl]    Water level: '
+
+const log = (...args) => console.log([new Date()].concat(args).join( ))
 
 const getItemTimestamp = (key) => {
   try {
@@ -41,35 +46,38 @@ const notify = (message) => {
   .catch(error => log(error))
 }
 
-const { exec } = require("child_process")
-
-const wlRow = '[wl]    Water level: '
-
-exec(`airctrl ${PURIFIER_IP}`, async (error, stdout, stderr) => {
-  if (error) {
-    log(`error: ${error.message}`)
-    return
-  }
-  if (stderr) {
-    log(`stderr: ${stderr}`)
-    return
-  }
+const getStatus = async () => {
+  const {stderr, stdout} = await exec(`airctrl ${PURIFIER_IP}`, {timeout: 2000})
   log(`stdout: ${stdout}`)
 
-  const waterLevelLow = stdout.split('\n')
-    .filter(r => r.includes(wlRow))
-    .some(r => {
-      const percentage = parseInt(r.replace(wlRow, ''), 10)
-      // this seems to be either 0 or 100, at least with philips ac3829/10
-      return percentage < 5
+  if (stderr) {
+    log(`stderr: ${stderr}`)
+    throw new Error(stderr)
+  }
+  
+  const waterLevelLowRow = stdout.split('\n').find(r => {
+    const percentage = r.includes(WATER_LEVEL_ROW) ? parseInt(r.replace(WATER_LEVEL_ROW, ''), 10) : NaN
+
+    return Number.isInteger(percentage) && percentage < 5
   })
 
-
-  if(waterLevelLow){
+  if(typeof waterLevelLowRow !== "undefined"){
     await notify('add water')
   }
 
   if(stdout.includes('Error: pre-filter must be cleaned')){
     await notify('clean filter')
   }
+}
+
+getStatus().catch(async error => {
+  log("command failed", error)
+  try{
+    await notify(error.message)
+  }
+  catch(err){
+    log(err)
+  }
+  
+  process.exit(1)
 })
