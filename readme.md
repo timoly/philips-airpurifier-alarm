@@ -6,7 +6,7 @@ uses https://github.com/rgerganov/py-air-control for the communication with the 
 
 ## Usage
 - Generate gmail app password: My Account -> Sign-in & security -> Signing in to Google -> App passwords
-  - https://security.google.com/settings/security/apppasswords?utm_source=OGB&pli=1
+  - https://security.google.com/settings/security/apppasswords
 - setup .env
 - `npm build`
 - `npm start`
